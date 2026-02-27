@@ -1,0 +1,153 @@
+import pandas
+import pyautogui
+import pygetwindow as gw
+import time
+
+# ============================================================
+# FUNÇÕES DE ESPERA INTELIGENTE
+# ============================================================
+def esperar_janela(titulo, timeout=30):
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        janelas = gw.getAllTitles()
+        if any(titulo in j for j in janelas):
+            time.sleep(0.5)
+            return True
+        time.sleep(0.5)
+    return False
+
+def esperar_janela_fechar(titulo, timeout=30):
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        janelas = gw.getAllTitles()
+        if not any(titulo in j for j in janelas):
+            time.sleep(0.5)
+            return True
+        time.sleep(0.5)
+    return False
+
+def janela_aberta(titulo):
+    janelas = gw.getAllTitles()
+    return any(titulo in j for j in janelas)
+
+def esperar_carregamento(imagem="preview.webp", timeout=60):
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        try:
+            if pyautogui.locateOnScreen(imagem, confidence=0.7):
+                break
+        except pyautogui.ImageNotFoundException:
+            break
+        time.sleep(0.3)
+
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        try:
+            if not pyautogui.locateOnScreen(imagem, confidence=0.7):
+                time.sleep(0.5)
+                return True
+        except pyautogui.ImageNotFoundException:
+            time.sleep(0.5)
+            return True
+        time.sleep(0.3)
+
+    return False
+
+# ============================================================
+# LEITURA DA BASE DE DADOS
+# ============================================================
+tabela = pandas.read_csv("Pasta1.csv", sep=";")
+print(tabela)
+
+pyautogui.PAUSE = 0.5
+pyautogui.hotkey("alt", "tab")
+
+# ============================================================
+# LOOP DE LANÇAMENTO
+# ============================================================
+for linha in tabela.index:
+
+    # --- Tela inicial: Nota Fiscal lista ---
+    esperar_janela("Nota Fiscal")
+    pyautogui.hotkey("alt", "I")
+    pyautogui.press("enter")
+
+    # --- Preenchimento da NF ---
+    esperar_janela("Nota Fiscal")
+    time.sleep(1)
+    pyautogui.press("down")
+    pyautogui.press("tab")
+
+    COD_IOB = tabela.loc[linha, "COD_IOB"]
+    pyautogui.write(str(COD_IOB))
+    pyautogui.press("tab")
+
+    # --- Janela Cliente ---
+    esperar_janela("Cliente")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+
+    # --- Volta para NF: digita datas sem barras ---
+    esperar_janela_fechar("Cliente")
+
+    EMISSAO = str(tabela.loc[linha, "EMISSAO"])
+    pyautogui.write(EMISSAO)
+    pyautogui.press("enter")
+
+    VENCIMENTO = str(tabela.loc[linha, "VENCIMENTO"])
+    pyautogui.write(VENCIMENTO)
+
+    # 10 enters para navegar campos
+    for _ in range(10):
+        pyautogui.press("enter")
+
+    # 4 tabs para chegar na área de itens
+    for _ in range(4):
+        pyautogui.press("tab")
+
+    pyautogui.press("insert")
+
+    # --- Item da Nota Fiscal ---
+    esperar_janela("Item da Nota Fiscal")
+    pyautogui.write("C01")
+
+    for _ in range(6):
+        pyautogui.press("tab")
+
+    pyautogui.write("1")
+    pyautogui.press("tab")
+
+    TOTAL = tabela.loc[linha, "TOTAL"]
+    pyautogui.write(str(TOTAL))
+    pyautogui.press("enter")
+    pyautogui.press("esc")
+    pyautogui.press("enter")
+
+    # --- Volta para NF: grava ---
+    esperar_janela_fechar("Item da Nota Fiscal")
+    pyautogui.hotkey("alt", "G")
+
+    # -------------------------------------------------------
+    # PÓS GRAVAÇÃO
+    # -------------------------------------------------------
+
+    # Espera o carregamento "Aguarde! Gravando Nota Fiscal" sumir
+    esperar_carregamento("preview.webp")
+
+    # Janela esporádica "Information"
+    if janela_aberta("Information"):
+        pyautogui.press("enter")
+        esperar_janela_fechar("Information")
+
+    # Janela "Natureza de Operação" — 2 enters
+    esperar_janela("Natureza de Operação")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+
+    # Janela "Duplicatas - Contas a Receber" — 2 enters
+    esperar_janela("Duplicatas - Contas a Receber")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+
+    # Espera fechar e voltar para tela inicial
+    esperar_janela_fechar("Duplicatas - Contas a Receber")
