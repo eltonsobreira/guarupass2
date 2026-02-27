@@ -6,7 +6,7 @@ import time
 tabela = pandas.read_csv("Pasta1.csv", sep=";")
 print(tabela)
 
-pyautogui.PAUSE = 1
+pyautogui.PAUSE = 2
 pyautogui.hotkey("alt", "tab")
 
 for linha in tabela.index:
@@ -42,6 +42,7 @@ for linha in tabela.index:
     pyautogui.press("tab")
     pyautogui.press("tab")
     pyautogui.press("insert")
+    time.sleep(3)
     pyautogui.write(str("C01"))
     pyautogui.press("tab")
     pyautogui.press("tab")
@@ -60,13 +61,17 @@ for linha in tabela.index:
     time.sleep(2)
     pyautogui.hotkey("alt", "G")
     time.sleep(2)
-    pyautogui.press("enter")
-    pyautogui.press("enter")
-    pyautogui.press("enter")
-    pyautogui.press("enter")
-    time.sleep(3)
-
     janelas = gw.getAllTitles()
     if any("Information" in titulo for titulo in janelas):
         pyautogui.press("enter")
         time.sleep(2)
+    pyautogui.press("enter")
+    time.sleep(2)
+    pyautogui.press("enter")
+    time.sleep(2)
+    pyautogui.press("enter")
+    time.sleep(2)
+    pyautogui.press("enter")
+    time.sleep(2)
+
+
