@@ -64,14 +64,14 @@ for linha in tabela.index:
     janelas = gw.getAllTitles()
     if any("Information" in titulo for titulo in janelas):
         pyautogui.press("enter")
-        time.sleep(2)
+        time.sleep(1)
     pyautogui.press("enter")
-    time.sleep(2)
+    time.sleep(1)
     pyautogui.press("enter")
-    time.sleep(2)
+    time.sleep(1)
     pyautogui.press("enter")
-    time.sleep(2)
+    time.sleep(1)
     pyautogui.press("enter")
-    time.sleep(2)
+    time.sleep(1)
 
 
