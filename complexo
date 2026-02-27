@@ -6,7 +6,7 @@ import time
 # ============================================================
 # FUNÇÕES DE ESPERA INTELIGENTE
 # ============================================================
-def esperar_janela(titulo, timeout=30):
+def esperar_janela(titulo, timeout=5):
     inicio = time.time()
     while time.time() - inicio < timeout:
         janelas = gw.getAllTitles()
@@ -16,7 +16,7 @@ def esperar_janela(titulo, timeout=30):
         time.sleep(0.5)
     return False
 
-def esperar_janela_fechar(titulo, timeout=30):
+def esperar_janela_fechar(titulo, timeout=5):
     inicio = time.time()
     while time.time() - inicio < timeout:
         janelas = gw.getAllTitles()
