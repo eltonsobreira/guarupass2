@@ -11,8 +11,9 @@ pyautogui.hotkey("alt", "tab")
 
 for linha in tabela.index:
     pyautogui.hotkey("alt", "I")
+    pyautogui.sleep(2)
     pyautogui.press("enter")
-    time.sleep(5)
+    time.sleep(25)
     pyautogui.press("down")
     pyautogui.press("tab")
     COD_IOB = tabela.loc[linha, "COD_IOB"]
@@ -60,7 +61,7 @@ for linha in tabela.index:
     pyautogui.press("enter")
     time.sleep(2)
     pyautogui.hotkey("alt", "G")
-    time.sleep(2)
+    time.sleep(25)
     janelas = gw.getAllTitles()
     if any("Information" in titulo for titulo in janelas):
         pyautogui.press("enter")
