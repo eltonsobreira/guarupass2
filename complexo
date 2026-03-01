@@ -109,3 +109,4 @@ for linha in tabela.index:
     time.sleep(1)
     pyautogui.press("enter")
     time.sleep(1)
+    esperar_carregamento("aguarde.png")
