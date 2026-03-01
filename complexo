@@ -4,33 +4,10 @@ import pygetwindow as gw
 import time
 
 # ============================================================
-# FUNÇÕES DE ESPERA INTELIGENTE
+# FUNÇÃO DE ESPERA DO CARREGAMENTO
 # ============================================================
-def esperar_janela(titulo, timeout=5):
-    inicio = time.time()
-    while time.time() - inicio < timeout:
-        janelas = gw.getAllTitles()
-        if any(titulo in j for j in janelas):
-            time.sleep(0.5)
-            return True
-        time.sleep(0.5)
-    return False
-
-def esperar_janela_fechar(titulo, timeout=5):
-    inicio = time.time()
-    while time.time() - inicio < timeout:
-        janelas = gw.getAllTitles()
-        if not any(titulo in j for j in janelas):
-            time.sleep(0.5)
-            return True
-        time.sleep(0.5)
-    return False
-
-def janela_aberta(titulo):
-    janelas = gw.getAllTitles()
-    return any(titulo in j for j in janelas)
-
-def esperar_carregamento(imagem="preview.webp", timeout=60):
+def esperar_carregamento(imagem="aguarde.png", timeout=60):
+    # Espera a tela aparecer
     inicio = time.time()
     while time.time() - inicio < timeout:
         try:
@@ -40,6 +17,7 @@ def esperar_carregamento(imagem="preview.webp", timeout=60):
             break
         time.sleep(0.3)
 
+    # Espera a tela SUMIR para continuar
     inicio = time.time()
     while time.time() - inicio < timeout:
         try:
@@ -51,69 +29,61 @@ def esperar_carregamento(imagem="preview.webp", timeout=60):
             return True
         time.sleep(0.3)
 
+    print("TIMEOUT: carregamento não sumiu!")
     return False
 
 # ============================================================
-# LEITURA DA BASE DE DADOS
+# CÓDIGO PRINCIPAL
 # ============================================================
 tabela = pandas.read_csv("Pasta1.csv", sep=";")
 print(tabela)
 
-pyautogui.PAUSE = 0.5
+pyautogui.PAUSE = 2
 pyautogui.hotkey("alt", "tab")
 
-# ============================================================
-# LOOP DE LANÇAMENTO
-# ============================================================
 for linha in tabela.index:
-
-    # --- Tela inicial: Nota Fiscal lista ---
-    esperar_janela("Nota Fiscal")
     pyautogui.hotkey("alt", "I")
+    time.sleep(2)
     pyautogui.press("enter")
-
-    # --- Preenchimento da NF ---
-    esperar_janela("Nota Fiscal")
-    time.sleep(1)
+    time.sleep(25)
     pyautogui.press("down")
     pyautogui.press("tab")
 
     COD_IOB = tabela.loc[linha, "COD_IOB"]
     pyautogui.write(str(COD_IOB))
     pyautogui.press("tab")
-
-    # --- Janela Cliente ---
-    esperar_janela("Cliente")
     pyautogui.press("enter")
     pyautogui.press("enter")
 
-    # --- Volta para NF: digita datas sem barras ---
-    esperar_janela_fechar("Cliente")
-
-    EMISSAO = str(tabela.loc[linha, "EMISSAO"])
-    pyautogui.write(EMISSAO)
+    EMISSAO = tabela.loc[linha, "EMISSAO"]
+    pyautogui.write(str(EMISSAO))
     pyautogui.press("enter")
 
-    VENCIMENTO = str(tabela.loc[linha, "VENCIMENTO"])
-    pyautogui.write(VENCIMENTO)
-
-    # 10 enters para navegar campos
-    for _ in range(10):
-        pyautogui.press("enter")
-
-    # 4 tabs para chegar na área de itens
-    for _ in range(4):
-        pyautogui.press("tab")
-
+    VENCIMENTO = tabela.loc[linha, "VENCIMENTO"]
+    pyautogui.write(str(VENCIMENTO))
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("enter")
+    pyautogui.press("tab")
+    pyautogui.press("tab")
+    pyautogui.press("tab")
+    pyautogui.press("tab")
     pyautogui.press("insert")
-
-    # --- Item da Nota Fiscal ---
-    esperar_janela("Item da Nota Fiscal")
-    pyautogui.write("C01")
-
-    for _ in range(6):
-        pyautogui.press("tab")
-
+    time.sleep(3)
+    pyautogui.write(str("C01"))
+    pyautogui.press("tab")
+    pyautogui.press("tab")
+    pyautogui.press("tab")
+    pyautogui.press("tab")
+    pyautogui.press("tab")
+    pyautogui.press("tab")
     pyautogui.write("1")
     pyautogui.press("tab")
 
@@ -122,32 +92,20 @@ for linha in tabela.index:
     pyautogui.press("enter")
     pyautogui.press("esc")
     pyautogui.press("enter")
-
-    # --- Volta para NF: grava ---
-    esperar_janela_fechar("Item da Nota Fiscal")
+    time.sleep(2)
     pyautogui.hotkey("alt", "G")
-
-    # -------------------------------------------------------
-    # PÓS GRAVAÇÃO
-    # -------------------------------------------------------
-
-    # Espera o carregamento "Aguarde! Gravando Nota Fiscal" sumir
-    esperar_carregamento("preview.webp")
-
-    # Janela esporádica "Information"
-    if janela_aberta("Information"):
+    esperar_carregamento("aguarde.png")
+    time.sleep(2)
+    janelas = gw.getAllTitles()
+    if any("Information" in titulo for titulo in janelas):
         pyautogui.press("enter")
-        esperar_janela_fechar("Information")
+        time.sleep(1)
 
-    # Janela "Natureza de Operação" — 2 enters
-    esperar_janela("Natureza de Operação")
     pyautogui.press("enter")
+    time.sleep(1)
     pyautogui.press("enter")
-
-    # Janela "Duplicatas - Contas a Receber" — 2 enters
-    esperar_janela("Duplicatas - Contas a Receber")
+    time.sleep(1)
     pyautogui.press("enter")
+    time.sleep(1)
     pyautogui.press("enter")
-
-    # Espera fechar e voltar para tela inicial
-    esperar_janela_fechar("Duplicatas - Contas a Receber")
+    time.sleep(1)
