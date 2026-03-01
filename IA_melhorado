@@ -1,0 +1,173 @@
+import pandas
+import pyautogui
+import pygetwindow as gw
+import time
+
+# ============================================================
+# FUNÇÕES DE ESPERA INTELIGENTE
+# ============================================================
+def esperar_janela(titulo, timeout=60):
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        janelas = gw.getAllTitles()
+        if any(titulo in j for j in janelas):
+            time.sleep(0.5)
+            return True
+        time.sleep(0.5)
+    print(f"TIMEOUT: janela '{titulo}' não apareceu em {timeout}s")
+    return False
+
+def esperar_janela_fechar(titulo, timeout=60):
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        janelas = gw.getAllTitles()
+        if not any(titulo in j for j in janelas):
+            time.sleep(0.5)
+            return True
+        time.sleep(0.5)
+    print(f"TIMEOUT: janela '{titulo}' não fechou em {timeout}s")
+    return False
+
+def esperar_carregamento(imagem="aguarde.png", timeout=60):
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        try:
+            if pyautogui.locateOnScreen(imagem, confidence=0.5):
+                break
+        except pyautogui.ImageNotFoundException:
+            break
+        time.sleep(0.3)
+
+    inicio = time.time()
+    while time.time() - inicio < timeout:
+        try:
+            if not pyautogui.locateOnScreen(imagem, confidence=0.5):
+                time.sleep(0.5)
+                return True
+        except pyautogui.ImageNotFoundException:
+            time.sleep(0.5)
+            return True
+        time.sleep(0.3)
+
+    print("TIMEOUT: carregamento não sumiu!")
+    return False
+
+# ============================================================
+# LEITURA DA BASE DE DADOS
+# ============================================================
+tabela = pandas.read_csv("Pasta1.csv", sep=";")
+
+# Adiciona coluna LANCADO se não existir
+if "LANCADO" not in tabela.columns:
+    tabela["LANCADO"] = "N"
+
+print(tabela)
+
+pyautogui.PAUSE = 2
+pyautogui.hotkey("alt", "tab")
+
+# ============================================================
+# LOOP DE LANÇAMENTO
+# ============================================================
+for linha in tabela.index:
+
+    # Pula notas já lançadas
+    if tabela.loc[linha, "LANCADO"] == "S":
+        print(f"⏭️ Linha {linha} já lançada, pulando...")
+        continue
+
+    try:
+        # --- Tela inicial: Nota Fiscal lista ---
+        pyautogui.hotkey("alt", "I")
+        time.sleep(2)
+        pyautogui.press("enter")
+
+        # --- Aguarda tela de preenchimento aparecer ---
+        esperar_janela("Nota Fiscal")
+
+        pyautogui.press("down")
+        pyautogui.press("tab")
+
+        COD_IOB = tabela.loc[linha, "COD_IOB"]
+        pyautogui.write(str(COD_IOB))
+        pyautogui.press("tab")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+
+        EMISSAO = tabela.loc[linha, "EMISSAO"]
+        pyautogui.write(str(EMISSAO))
+        pyautogui.press("enter")
+
+        VENCIMENTO = tabela.loc[linha, "VENCIMENTO"]
+        pyautogui.write(str(VENCIMENTO))
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("enter")
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.press("insert")
+
+        # --- Aguarda tela Item da Nota Fiscal aparecer ---
+        esperar_janela("Item da Nota Fiscal")
+
+        pyautogui.write(str("C01"))
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.press("tab")
+        pyautogui.write("1")
+        pyautogui.press("tab")
+
+        TOTAL = tabela.loc[linha, "TOTAL"]
+        pyautogui.write(str(TOTAL))
+        pyautogui.press("enter")
+        pyautogui.press("esc")
+        pyautogui.press("enter")
+
+        # --- Aguarda tela Item da Nota Fiscal fechar ---
+        esperar_janela_fechar("Item da Nota Fiscal")
+
+        pyautogui.hotkey("alt", "G")
+
+        # --- Aguarda carregamento sumir ---
+        esperar_carregamento("aguarde.png")
+
+        # --- Janela esporádica Information ---
+        janelas = gw.getAllTitles()
+        if any("Information" in titulo for titulo in janelas):
+            pyautogui.press("enter")
+            time.sleep(1)
+
+        pyautogui.press("enter")
+        time.sleep(1)
+        pyautogui.press("enter")
+        time.sleep(1)
+        pyautogui.press("enter")
+        time.sleep(1)
+        pyautogui.press("enter")
+        time.sleep(1)
+
+        # --- Marca nota como lançada no CSV ---
+        tabela.loc[linha, "LANCADO"] = "S"
+        tabela.to_csv("Pasta1.csv", sep=";", index=False)
+        print(f"✅ Linha {linha} lançada com sucesso!")
+
+    except Exception as e:
+        # --- Registra erro e pula para próxima nota ---
+        with open("erros.txt", "a") as f:
+            f.write(f"Erro na linha {linha}: {e}\n")
+        print(f"❌ Erro na linha {linha}: {e} — pulando para próxima nota...")
+        continue
+
+print("\n✅ Processo finalizado!")
