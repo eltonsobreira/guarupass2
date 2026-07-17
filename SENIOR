@@ -1,0 +1,69 @@
+import pandas
+import pyautogui
+import openpyxl
+import time
+
+
+tabela = pandas.read_excel("SENIOR.xlsx")
+
+print(tabela)
+
+
+
+
+
+
+pyautogui.PAUSE = 1.5
+
+pyautogui.hotkey("alt", "tab")
+for linha in tabela.index:
+
+
+    pyautogui.write(str("703"))
+
+    pyautogui.press("tab", presses=4, interval=0.5)
+
+    DATA = tabela.loc[linha, "DATA"].strftime("%d%m%Y")
+    pyautogui.write(str(DATA))
+
+    pyautogui.press("tab")
+
+    DATA = tabela.loc[linha, "DATA"].strftime("%d%m%Y")
+    pyautogui.write(str(DATA))
+
+    pyautogui.press("tab", presses=2, interval=0.5)
+    
+    COD_SENIOR = tabela.loc[linha, "COD_SENIOR"]
+    pyautogui.write(str(COD_SENIOR))
+
+    pyautogui.press("tab", presses=3, interval=0.5)
+
+    CENTRO_CUSTO = tabela.loc[linha, "CENTRO_CUSTO"]
+    pyautogui.write(str(CENTRO_CUSTO))
+
+    pyautogui.press("tab", presses=19, interval=0.8)
+
+    time.sleep(1)
+
+    pyautogui.press("right", presses=2, interval=0.8)
+
+    pyautogui.write(str(41))
+
+    # esperar aparecer UN
+
+    pyautogui.press("tab", presses=4, interval=0.8)
+
+    VENDA = tabela.loc[linha, "TOTAL"]
+    pyautogui.write(str(VENDA))
+
+    pyautogui.press("tab", presses=13, interval=0.8)
+
+    pyautogui.press("enter")
+
+    pyautogui.press("tab", presses=28, interval=0.8)
+
+    pyautogui.press("enter")
+    
+    time.sleep(0.5)
+    
+    pyautogui.press("enter")
