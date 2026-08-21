@@ -32,8 +32,10 @@ for linha in tabela.index:
 
   NOME = tabela.loc[linha, "Lançamento"]  
   pyautogui.write(str(NOME))
-  
-  # ACHAR LOCALIZAÇÃO INSERIR DE BAIXO MOUSE
+
+  pyautogui.clck(x=1321, y=477)
+
+  time.sleep(2)
   
   pyautogui.write(str("341"))
   
