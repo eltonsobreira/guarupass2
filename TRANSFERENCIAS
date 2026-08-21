@@ -21,14 +21,17 @@ for linha in tabela.index:
   pyautogui.write(str("2760"))
   
   pyautogui.press("tab", presses=5, interval=0.8)
-  
-  pyautogui.write(str("DATA DA PLANILHA"))
-  
-  pyautogui.write(str("VALOR TRANSF"))
+
+  DATA = tabela.loc[linha, "Data"].strftime("%d%m%Y")  
+  pyautogui.write(str(DATA))
+
+  VALOR = tabela.loc[linha, "Valor"]
+  pyautogui.write(str(VALOR))
   
   pyautogui.press("tab", presses=4, interval=0.8)
-  
-  pyautogui.write(str("NOME TRANSF"))
+
+  NOME = tabela.loc[linha, "Lançamento"]  
+  pyautogui.write(str(NOME))
   
   # ACHAR LOCALIZAÇÃO INSERIR DE BAIXO MOUSE
   
@@ -40,11 +43,11 @@ for linha in tabela.index:
   
   pyautogui.press("tab", presses=3, interval=0.8)
   
-  pyautogui.write(str("NOME TRANSF"))
+  pyautogui.write(str(NOME))
   
   pyautogui.press("tab", presses=1, interval=0.8)
   
-  pyautogui.write(str("VALOR TRANSF"))
+  pyautogui.write(str(VALOR))
   
   pyautogui.press("tab", presses=1, interval=0.8)
   
