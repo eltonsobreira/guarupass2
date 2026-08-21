@@ -1,0 +1,60 @@
+import pandas
+import pyautogui
+import openpyxl
+import time
+
+tabela = pandas.read_excel(TRANSF.xlsx)
+
+print(tabela)
+
+pyautogui.PAUSE = 1.5
+
+pyautogui.hotkey("alt", "tab")
+
+for linha in tabela.index:
+  pyautogui.press("tab")
+  
+  pyautogui.write(str("712"))
+  
+  pyautogui.press("tab", presses=2, interval=0.8)
+  
+  pyautogui.write(str("2760"))
+  
+  pyautogui.press("tab", presses=5, interval=0.8)
+  
+  pyautogui.write(str("DATA DA PLANILHA"))
+  
+  pyautogui.write(str("VALOR TRANSF"))
+  
+  pyautogui.press("tab", presses=4, interval=0.8)
+  
+  pyautogui.write(str("NOME TRANSF"))
+  
+  # ACHAR LOCALIZAÇÃO INSERIR DE BAIXO MOUSE
+  
+  pyautogui.write(str("341"))
+  
+  pyautogui.press("tab", presses=1, interval=0.8)
+  
+  pyautogui.write(str("130"))
+  
+  pyautogui.press("tab", presses=3, interval=0.8)
+  
+  pyautogui.write(str("NOME TRANSF"))
+  
+  pyautogui.press("tab", presses=1, interval=0.8)
+  
+  pyautogui.write(str("VALOR TRANSF"))
+  
+  pyautogui.press("tab", presses=1, interval=0.8)
+  
+  pyautogui.press("enter")
+  
+  pyautogui.hotkey("alt", "i")
+  
+  pyautogui.press("enter")
+  
+  
+
+
+
