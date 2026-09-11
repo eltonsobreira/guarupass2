@@ -2,64 +2,157 @@ import pandas
 import pyautogui
 import openpyxl
 import time
+from PIL import Image
 
-tabela = pandas.read_excel(TRANSF.xlsx)
+# ==============================
+# CONFIGURAÇÕES
+# ==============================
 
+ARQUIVO = "extrato.xlsm"
+
+# Tempo padrão entre comandos do PyAutoGUI
+pyautogui.PAUSE = 1
+
+# ==============================
+# IMAGEM DE ESPERA
+# ==============================
+
+IMAGEM_CONCILIACAO = Image.open(
+    "cod_conciliacao.png"
+).convert("RGB")
+
+
+def esperar_imagem():
+
+    print("Aguardando aparecer 'Cod. Conciliação'...")
+
+    while True:
+
+        try:
+            encontrado = pyautogui.locateOnScreen(
+                IMAGEM_CONCILIACAO,
+                confidence=0.85
+            )
+
+            if encontrado is not None:
+                print("Tela pronta! Iniciando próxima linha...")
+                time.sleep(0.5)
+                break
+
+        except pyautogui.ImageNotFoundException:
+            pass
+
+        time.sleep(1)
+
+
+# ==============================
+# LEITURA DO EXCEL
+# ==============================
+
+tabela = pandas.read_excel(ARQUIVO)
+
+# Converte a coluna "Data" para data de verdade
+tabela["Data"] = pandas.to_datetime(
+    tabela["Data"],
+    dayfirst=True,
+    errors="raise"
+)
+
+print(f"Total de linhas: {len(tabela)}")
 print(tabela)
 
-pyautogui.PAUSE = 1.5
+# ==============================
+# TROCA PARA A JANELA DO SISTEMA
+# ==============================
 
 pyautogui.hotkey("alt", "tab")
 
+# ==============================
+# AUTOMAÇÃO
+# ==============================
+
+# Processa TODAS as linhas da tabela
 for linha in tabela.index:
-  pyautogui.press("tab")
-  
-  pyautogui.write(str("712"))
-  
-  pyautogui.press("tab", presses=2, interval=0.8)
-  
-  pyautogui.write(str("2760"))
-  
-  pyautogui.press("tab", presses=5, interval=0.8)
 
-  DATA = tabela.loc[linha, "Data"].strftime("%d%m%Y")  
-  pyautogui.write(str(DATA))
+    print(f"Processando linha {linha + 1} de {len(tabela)}...")
 
-  VALOR = tabela.loc[linha, "Valor"]
-  pyautogui.write(str(VALOR))
-  
-  pyautogui.press("tab", presses=4, interval=0.8)
+    # ------------------------------
+    # PRIMEIRA PARTE
+    # ------------------------------
 
-  NOME = tabela.loc[linha, "Lançamento"]  
-  pyautogui.write(str(NOME))
+    pyautogui.press("tab")
 
-  pyautogui.clck(x=1321, y=477)
+    pyautogui.write("712")
 
-  time.sleep(2)
-  
-  pyautogui.write(str("341"))
-  
-  pyautogui.press("tab", presses=1, interval=0.8)
-  
-  pyautogui.write(str("130"))
-  
-  pyautogui.press("tab", presses=3, interval=0.8)
-  
-  pyautogui.write(str(NOME))
-  
-  pyautogui.press("tab", presses=1, interval=0.8)
-  
-  pyautogui.write(str(VALOR))
-  
-  pyautogui.press("tab", presses=1, interval=0.8)
-  
-  pyautogui.press("enter")
-  
-  pyautogui.hotkey("alt", "i")
-  
-  pyautogui.press("enter")
-  
-  
+    pyautogui.press("tab", presses=3, interval=0.8)
 
+    pyautogui.write("2760")
 
+    pyautogui.press("tab", presses=5, interval=0.8)
 
+    # Data
+    DATA = tabela.loc[linha, "Data"].strftime("%d%m%Y")
+    pyautogui.write(DATA)
+
+    pyautogui.press("tab", presses=2, interval=0.8)
+
+    # Valor
+    VALOR = tabela.loc[linha, "Valor"]
+    pyautogui.write(str(VALOR))
+
+    pyautogui.press("tab", presses=4, interval=0.8)
+
+    # Nome / lançamento
+    NOME = tabela.loc[linha, "Lançamento"]
+    pyautogui.write(str(NOME))
+
+    # Clique
+    pyautogui.click(x=1321, y=477)
+
+    time.sleep(1.5)
+
+    # ------------------------------
+    # SEGUNDA PARTE
+    # ------------------------------
+
+    pyautogui.write("341")
+
+    pyautogui.press("tab", presses=1, interval=0.8)
+
+    pyautogui.write("130")
+
+    pyautogui.press("tab", presses=3, interval=0.8)
+
+    pyautogui.write(str(NOME))
+
+    pyautogui.press("tab", presses=1, interval=0.8)
+
+    pyautogui.write(str(VALOR))
+
+    pyautogui.press("tab", presses=1, interval=0.8)
+
+    pyautogui.press("enter")
+
+    pyautogui.hotkey("alt", "i")
+
+    pyautogui.press("enter")
+
+    # Pequena pausa antes de iniciar a próxima linha
+    time.sleep(1)
+
+    print(f"Linha {linha + 1} concluída.")
+
+    # ------------------------------
+    # ESPERA A TELA FICAR PRONTA
+    # ------------------------------
+
+    esperar_imagem()
+
+# ==============================
+# FINAL
+# ==============================
+
+print("===================================")
+print("AUTOMAÇÃO CONCLUÍDA!")
+print(f"Total processado: {len(tabela)} linhas")
+print("===================================")
