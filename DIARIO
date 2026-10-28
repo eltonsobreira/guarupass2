@@ -63,11 +63,23 @@ for linha in tabela.index:
     pyautogui.press("tab", presses=4, interval=0.5)
 
     DATA = tabela.loc[linha, "DATA"]
+
+    if isinstance(DATA, str):
+        DATA = pandas.to_datetime(DATA, dayfirst=True).strftime("%d/%m/%Y")
+    else:
+        DATA = DATA.strftime("%d/%m/%Y")
+
     pyautogui.write(DATA)
 
     pyautogui.press("tab")
 
     DATA = tabela.loc[linha, "DATA"]
+
+    if isinstance(DATA, str):
+        DATA = pandas.to_datetime(DATA, dayfirst=True).strftime("%d/%m/%Y")
+    else:
+        DATA = DATA.strftime("%d/%m/%Y")
+
     pyautogui.write(DATA)
 
     pyautogui.press("tab", presses=2, interval=0.5)
@@ -80,7 +92,7 @@ for linha in tabela.index:
     CENTRO_CUSTO = tabela.loc[linha, "CENTRO_CUSTO"]
     pyautogui.write(str(CENTRO_CUSTO))
 
-    pyautogui.press("tab", presses=19, interval=0.8)
+    pyautogui.press("tab", presses=20, interval=0.8)
 
     time.sleep(1)
 
