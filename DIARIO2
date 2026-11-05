@@ -1,0 +1,268 @@
+
+import pandas
+import pyautogui
+import openpyxl
+import time
+import threading
+
+tabela = pandas.read_excel("DIÁRIO EMPRESAS.xlsm")
+
+print(tabela)
+
+pyautogui.PAUSE = 1.5
+
+IMAGEM_ERRO = "janela_erro.png"
+
+popup_detectado = threading.Event()
+
+
+# ==========================================
+# MONITORAMENTO DA JANELA
+# ==========================================
+
+def monitorar_tela():
+
+    while True:
+
+        try:
+            imagem = pyautogui.locateOnScreen(
+                IMAGEM_ERRO,
+                confidence=0.9
+            )
+
+            if imagem:
+                popup_detectado.set()
+
+        except Exception:
+            pass
+
+        time.sleep(0.4)
+
+
+# ==========================================
+# TRATAR JANELA E REINICIAR LINHA
+# ==========================================
+
+def verificar_popup():
+
+    if popup_detectado.is_set():
+
+        print("JANELA IDENTIFICADA!")
+
+        # Aguarda 1,5 segundo antes de pressionar ENTER
+        time.sleep(1.5)
+
+        # Fecha a janela
+        pyautogui.press("enter")
+
+        time.sleep(1)
+
+        # Aguarda a janela desaparecer
+        while True:
+
+            try:
+                imagem = pyautogui.locateOnScreen(
+                    IMAGEM_ERRO,
+                    confidence=0.9
+                )
+            except Exception:
+                imagem = None
+
+            if imagem is None:
+                break
+
+            time.sleep(0.5)
+
+        popup_detectado.clear()
+
+        print("Janela fechada. Reiniciando linha atual...")
+
+        return True
+
+    return False
+
+
+# ==========================================
+# AGUARDAR TELA INICIAL
+# ==========================================
+
+def esperar_tela_inicial():
+
+    inicio = time.time()
+
+    while time.time() - inicio < 12:
+
+        if verificar_popup():
+            continue
+
+        try:
+            if pyautogui.locateOnScreen(
+                "codigo_acao.jpeg",
+                confidence=0.9
+            ):
+                print("Tela inicial encontrada!")
+                time.sleep(0.5)
+                return
+
+        except Exception:
+            pass
+
+        time.sleep(0.5)
+
+    print("Tela inicial não encontrada. Pressionando Enter duas vezes...")
+
+    time.sleep(1)
+    pyautogui.press("enter")
+
+    time.sleep(1)
+    pyautogui.press("enter")
+
+    while True:
+
+        if verificar_popup():
+            continue
+
+        try:
+            if pyautogui.locateOnScreen(
+                "codigo_acao.jpeg",
+                confidence=0.9
+            ):
+                print("Tela inicial encontrada!")
+                time.sleep(0.5)
+                return
+
+        except Exception:
+            pass
+
+        time.sleep(0.5)
+
+
+# ==========================================
+# INICIAR MONITORAMENTO
+# ==========================================
+
+threading.Thread(
+    target=monitorar_tela,
+    daemon=True
+).start()
+
+
+# ==========================================
+# INICIAR AUTOMAÇÃO
+# ==========================================
+
+pyautogui.hotkey("alt", "tab")
+
+
+for linha in tabela.index:
+
+    while True:
+
+        print(f"Processando linha {linha + 2} da planilha...")
+
+        # Verifica se existe janela antes de começar
+        if verificar_popup():
+            esperar_tela_inicial()
+            continue
+
+        # ----------------------------------
+        # PREENCHIMENTO DOS CAMPOS
+        # ----------------------------------
+
+        pyautogui.write("703")
+
+        pyautogui.press("tab", presses=4, interval=0.5)
+
+        DATA = tabela.loc[linha, "DATA"]
+
+        if isinstance(DATA, str):
+            DATA = pandas.to_datetime(
+                DATA, dayfirst=True
+            ).strftime("%d/%m/%Y")
+        else:
+            DATA = DATA.strftime("%d/%m/%Y")
+
+        pyautogui.write(DATA)
+
+        pyautogui.press("tab")
+
+        DATA = tabela.loc[linha, "DATA"]
+
+        if isinstance(DATA, str):
+            DATA = pandas.to_datetime(
+                DATA, dayfirst=True
+            ).strftime("%d/%m/%Y")
+        else:
+            DATA = DATA.strftime("%d/%m/%Y")
+
+        pyautogui.write(DATA)
+
+        pyautogui.press("tab", presses=2, interval=0.5)
+
+        COD_SENIOR = tabela.loc[linha, "COD_SENIOR"]
+        pyautogui.write(str(COD_SENIOR))
+
+        pyautogui.press("tab", presses=3, interval=0.5)
+
+        CENTRO_CUSTO = tabela.loc[linha, "CENTRO_CUSTO"]
+        pyautogui.write(str(CENTRO_CUSTO))
+
+        pyautogui.press("tab", presses=20, interval=0.8)
+
+        time.sleep(1)
+
+        pyautogui.press("right", presses=2, interval=0.8)
+
+        TIPO = tabela.loc[linha, "TIPO"]
+        pyautogui.write(str(TIPO))
+
+        pyautogui.press("tab", presses=4, interval=0.8)
+
+        VENDA = tabela.loc[linha, "TOTAL"]
+        pyautogui.write(str(VENDA))
+
+        pyautogui.press("tab", presses=13, interval=0.8)
+
+        pyautogui.press("enter")
+
+        pyautogui.press("tab", presses=28, interval=0.8)
+
+        time.sleep(1)
+
+        pyautogui.press("enter")
+
+        time.sleep(1.5)
+
+        pyautogui.press("enter")
+
+        # ----------------------------------
+        # VERIFICAR SE HOUVE ERRO
+        # ----------------------------------
+
+        if verificar_popup():
+
+            print(f"Refazendo a linha {linha + 2}...")
+
+            esperar_tela_inicial()
+
+            continue
+
+        # Aguarda a tela inicial
+        esperar_tela_inicial()
+
+        # Verifica novamente após finalizar
+        if verificar_popup():
+
+            print(f"Refazendo a linha {linha + 2}...")
+
+            esperar_tela_inicial()
+
+            continue
+
+        # Linha concluída
+        print(f"Linha {linha + 2} concluída com sucesso!")
+
+        break
+
+
+print("AUTOMAÇÃO FINALIZADA!")
