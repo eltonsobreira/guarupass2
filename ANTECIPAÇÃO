@@ -82,19 +82,30 @@ for linha in tabela.index:
 
     pyautogui.press("tab")
 
-    pyautogui.write("711")
+    pyautogui.write("710")
 
     pyautogui.press("tab", presses=2, interval=0.8)
 
     pyautogui.write("341")
 
-    pyautogui.press("tab", presses=5, interval=0.8)
+    pyautogui.press("tab", presses=3, interval=0.8)
+
+    pyautogui.write("REP")
+
+    DOC = tabela.loc[linha, "ANTEC"]
+    pyautogui.write(DOC)
+
+    pyautogui.press("tab")
 
     # Data
     DATA = tabela.loc[linha, "Data"].strftime("%d%m%Y")
     pyautogui.write(DATA)
 
-    pyautogui.press("tab", presses=2, interval=0.8)
+    pyautogui.press("tab")
+
+    pyautogui.write(DATA)
+
+    pyautogui.press("tab", presses=1, interval=0.8)
 
     # Valor
     VALOR = tabela.loc[linha, "VALOR"]
@@ -116,12 +127,12 @@ for linha in tabela.index:
     # ------------------------------
 
     EMPRESA = tabela.loc[linha, "COD_SENIOR"]
-    pyautogui.write("EMPRESA")
+    pyautogui.write(EMPRESA)
 
     pyautogui.press("tab", presses=1, interval=0.8)
 
     CLASSE = tabela.loc[linha, "CLASSE"]
-    pyautogui.write("CLASSE")
+    pyautogui.write(CLASSE)
 
     pyautogui.press("tab", presses=1, interval=0.8)
 
@@ -131,7 +142,7 @@ for linha in tabela.index:
 
     pyautogui.press("tab", presses=5, interval=0.8)
 
-    pyautogui.write(str("COMPLEMENTO"))
+    pyautogui.write(str(NOME))
 
     pyautogui.press("tab", presses=1, interval=0.8)
 
